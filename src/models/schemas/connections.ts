@@ -2,7 +2,11 @@ import { pgTable, text, uuid, pgEnum, unique } from "drizzle-orm/pg-core";
 import { User } from "./user";
 import { timestamps } from "./common";
 
-export const softwareType = pgEnum("software_type", ["QuickBooks", "Xero"]);
+export const softwareType = pgEnum("software_type", [
+  "QuickBooks",
+  "Xero",
+  "Zoho",
+]);
 
 export const Softwares = pgTable(
   "softwares",

@@ -8,7 +8,6 @@ interface ErrorMessage {
   message: string;
   code: string;
 }
-
 export function validateRequestSchema(
   schema: ZodSchema,
   type: "body" | "params" | "query" = "body",

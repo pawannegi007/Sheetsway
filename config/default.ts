@@ -39,5 +39,14 @@ export default {
         "accounting.journals.read",
       ],
     },
+    zoho: {
+      clientId: process.env.ZOHO_CLIENT_ID,
+      clientSecret: process.env.ZOHO_CLIENT_SECRET,
+      redirectUri: process.env.ZOHO_REDIRECT_URI,
+      tokenEndpoint: process.env.ZOHO_TOKEN_ENDPOINT,
+      environment: process.env.XERO_ENVIRONMENT || "sandbox",
+      scopes: process.env.ZOHO_SCOPES!.split(","),
+      zohoAccountUrl: process.env.ZOHO_ACCOUNTS_URL,
+    },
   },
 };
