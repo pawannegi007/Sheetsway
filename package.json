@@ -35,7 +35,7 @@
     "@types/express": "^5.0.1",
     "@types/ioredis": "^4.28.10",
     "@types/node": "^22.14.1",
-    "drizzle-kit": "^0.31.0",
+    "drizzle-kit": "^0.31.1",
     "husky": "^8.0.0",
     "lint-staged": "^15.5.1",
     "pino-pretty": "^13.0.0",

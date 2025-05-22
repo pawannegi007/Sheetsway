@@ -29,7 +29,7 @@ export const initXero = async (userId: string) => {
   });
 
   if (!softwareConnection || !softwareConnection.connection_data) {
-    throw new Error(`QuickBooks connection not found for user ${userId}.`);
+    throw new Error(`Xero connection not found for user ${userId}.`);
   }
   // decrypt the connection data
   const decryptedDataRaw = Encryption.decryptObject(
@@ -112,4 +112,59 @@ export function formatXeroJournalEntries(
   }
 
   return result;
+}
+
+export function mapXeroContactToUnified(contact: any) {
+  return {
+    id: contact.contactID || null,
+    name: contact.name || null,
+    displayName: contact.name || null,
+    firstName: contact.contactPersons?.[0]?.firstName || null,
+    lastName: contact.contactPersons?.[0]?.lastName || null,
+    companyName: contact.name || null,
+    status: contact.contactStatus || "ACTIVE",
+    isCustomer: contact.isCustomer || false,
+    isSupplier: contact.isSupplier || false,
+    emails: contact.emailAddress
+      ? [{ type: "PRIMARY", address: contact.emailAddress }]
+      : [],
+    phones: (contact.phones || [])
+      .filter((p) => p.phoneNumber) // skip empty phone numbers
+      .map((p) => ({
+        type: p.phoneType || "OTHER",
+        number: [
+          p.phoneCountryCode || "",
+          p.phoneAreaCode || "",
+          p.phoneNumber || "",
+        ]
+          .filter(Boolean)
+          .join("-"),
+      })),
+    addresses: (contact.addresses || []).map((addr) => ({
+      type: addr.addressType || "OTHER",
+      line1: addr.addressLine1 || "",
+      line2: addr.addressLine2 || "",
+      line3: addr.addressLine3 || "",
+      line4: addr.addressLine4 || "",
+      city: addr.city || "",
+      region: addr.region || "",
+      postalCode: addr.postalCode || "",
+      country: addr.country || "",
+    })),
+    contactPersons: (contact.contactPersons || []).map((p) => ({
+      firstName: p.firstName || "",
+      lastName: p.lastName || "",
+      email: p.emailAddress || "",
+      phone: p.phoneNumber || "",
+    })),
+    groups: (contact.contactGroups || []).map((g) => g.name || ""),
+    currency: null, // Xero contact-level currency not present here
+    balance: null, // not available in Xero contact object
+    preferredDeliveryMethod: null,
+    hasAttachments: contact.hasAttachments || false,
+    hasValidationErrors: contact.hasValidationErrors || false,
+    createdAt: null, // not included in payload
+    updatedAt: contact.updatedDateUTC || null,
+    source: "XERO",
+  };
 }

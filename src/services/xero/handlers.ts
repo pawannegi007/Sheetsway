@@ -11,7 +11,7 @@ import {
   xeroCallbackSchema,
 } from "../../schemas/xero";
 import { z } from "zod";
-import { getBankTransactions, getJournals } from "./reports";
+import { getBankTransactions, getJournals, getCustomers } from "./reports";
 import { dateFilterSchema } from "../../schemas";
 
 const XERO_CLIENT_ID = config.get<string>("modules.xero.clientId");
@@ -82,10 +82,11 @@ const callbackHandler: RequestHandler = async (req, res, next) => {
     return;
   } catch (error) {
     if (error instanceof Error) {
+      console.log({ error });
       logger.error("Error processing Xero callback:", error);
       AppResponse.error(
         res,
-        `Internal server error during callback processing: ${error.message}`
+        `Internal server error during callback processing: ${error.message}`,
       );
       return;
     }
@@ -107,7 +108,7 @@ const journalHandler: RequestHandler = async (req, res, next) => {
       logger.error(error, "Error fetching journals");
       AppResponse.error(
         res,
-        `Internal server error during callback processing: ${error.message}`
+        `Internal server error during callback processing: ${error.message}`,
       );
       return;
     }
@@ -131,11 +132,33 @@ const bankTransactionsHandler: RequestHandler = async (req, res, next) => {
       logger.error(error, "Error fetching bank transactions");
       AppResponse.error(
         res,
-        `Internal server error during callback processing: ${error.message}`
+        `Internal server error during callback processing: ${error.message}`,
       );
       return;
     }
     logger.error(error, "Error fetching bank transactions");
+    next(error);
+    return;
+  }
+};
+
+const customersHandler: RequestHandler = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { page, pageSize } = req.body;
+    const customers = await getCustomers(user!.id, page, pageSize);
+    AppResponse.success(res, "Customers fetched successfully", customers);
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error(error, "Error fetching customers");
+      AppResponse.error(
+        res,
+        `Internal server error during callback processing: ${error.message}`,
+      );
+      return;
+    }
+    logger.error(error, "Error fetching customers");
     next(error);
     return;
   }
@@ -146,4 +169,5 @@ export {
   callbackHandler,
   journalHandler,
   bankTransactionsHandler,
+  customersHandler,
 };

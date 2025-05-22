@@ -4,6 +4,7 @@ import { authenticate, validateRequestSchema } from "../../middlewares";
 import { dateFilterSchema } from "../../schemas";
 import {
   bankTransactionsHandler,
+  customersHandler,
   journalHandler,
 } from "../../services/xero/handlers";
 import { journatDateFilterSchema } from "../../schemas/xero";
@@ -23,5 +24,6 @@ router.post(
   validateRequestSchema(dateFilterSchema),
   bankTransactionsHandler,
 );
+router.post("/customers", authenticate, customersHandler);
 
 export default router;

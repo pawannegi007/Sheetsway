@@ -1,4 +1,8 @@
-import { formatXeroJournalEntries, initXero } from "./utils";
+import {
+  formatXeroJournalEntries,
+  initXero,
+  mapXeroContactToUnified,
+} from "./utils";
 
 export const getJournals = async (
   userId: string,
@@ -29,7 +33,6 @@ export const getBankTransactions = async (
   endDate?: string,
 ) => {
   const { xero, activeTenantId } = await initXero(userId);
-
   let where = "";
 
   if (startDate && endDate) {
@@ -47,4 +50,29 @@ export const getBankTransactions = async (
   );
   const bankTransactions = response.body.bankTransactions || [];
   return bankTransactions;
+};
+
+export const getCustomers = async (
+  userId: string,
+  page: number,
+  pageSize: number,
+) => {
+  const { xero, activeTenantId } = await initXero(userId);
+  const response = await xero.accountingApi.getContacts(
+    activeTenantId,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    page,
+    undefined,
+    undefined,
+    undefined,
+    pageSize,
+  );
+  const contacts = response.body.contacts || [];
+  const unifedContacts = contacts.map((contact) => {
+    return mapXeroContactToUnified(contact);
+  });
+  return unifedContacts;
 };
