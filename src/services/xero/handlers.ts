@@ -11,7 +11,13 @@ import {
   xeroCallbackSchema,
 } from "../../schemas/xero";
 import { z } from "zod";
-import { getBankTransactions, getJournals, getCustomers } from "./reports";
+import {
+  getBankTransactions,
+  getJournals,
+  getCustomers,
+  getSuppliers,
+  getCreditNotes,
+} from "./reports";
 import { dateFilterSchema } from "../../schemas";
 
 const XERO_CLIENT_ID = config.get<string>("modules.xero.clientId");
@@ -164,10 +170,56 @@ const customersHandler: RequestHandler = async (req, res, next) => {
   }
 };
 
+const supplierHandler: RequestHandler = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { page, pageSize } = req.body;
+    const suppliers = await getSuppliers(user!.id, page, pageSize);
+    AppResponse.success(res, "Suppliers fetched successfully", suppliers);
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error(error, "Error fetching customers");
+      AppResponse.error(
+        res,
+        `Internal server error during callback processing: ${error.message}`,
+      );
+      return;
+    }
+    logger.error(error, "Error fetching suppliers");
+    next(error);
+    return;
+  }
+};
+
+const creditNotesHandler: RequestHandler = async (req, res, next) => {
+  try {
+    const user = req.user;
+    const { page, pageSize } = req.body;
+    const creditNotes = await getCreditNotes(user!.id, page, pageSize);
+    AppResponse.success(res, "Credit notes fetched successfully", creditNotes);
+    return;
+  } catch (error) {
+    if (error instanceof Error) {
+      logger.error(error, "Error fetching credit notes");
+      AppResponse.error(
+        res,
+        `Internal server error during callback processing: ${error.message}`,
+      );
+      return;
+    }
+    logger.error(error, "Error fetching credit notes");
+    next(error);
+    return;
+  }
+};
+
 export {
   connectHandler,
   callbackHandler,
   journalHandler,
   bankTransactionsHandler,
   customersHandler,
+  supplierHandler,
+  creditNotesHandler,
 };

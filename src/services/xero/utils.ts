@@ -129,8 +129,8 @@ export function mapXeroContactToUnified(contact: any) {
       ? [{ type: "PRIMARY", address: contact.emailAddress }]
       : [],
     phones: (contact.phones || [])
-      .filter((p) => p.phoneNumber) // skip empty phone numbers
-      .map((p) => ({
+      .filter((p: any) => p.phoneNumber) // skip empty phone numbers
+      .map((p: any) => ({
         type: p.phoneType || "OTHER",
         number: [
           p.phoneCountryCode || "",
@@ -140,7 +140,7 @@ export function mapXeroContactToUnified(contact: any) {
           .filter(Boolean)
           .join("-"),
       })),
-    addresses: (contact.addresses || []).map((addr) => ({
+    addresses: (contact.addresses || []).map((addr: any) => ({
       type: addr.addressType || "OTHER",
       line1: addr.addressLine1 || "",
       line2: addr.addressLine2 || "",
@@ -151,13 +151,13 @@ export function mapXeroContactToUnified(contact: any) {
       postalCode: addr.postalCode || "",
       country: addr.country || "",
     })),
-    contactPersons: (contact.contactPersons || []).map((p) => ({
+    contactPersons: (contact.contactPersons || []).map((p: any) => ({
       firstName: p.firstName || "",
       lastName: p.lastName || "",
       email: p.emailAddress || "",
       phone: p.phoneNumber || "",
     })),
-    groups: (contact.contactGroups || []).map((g) => g.name || ""),
+    groups: (contact.contactGroups || []).map((g: any) => g.name || ""),
     currency: null, // Xero contact-level currency not present here
     balance: null, // not available in Xero contact object
     preferredDeliveryMethod: null,
